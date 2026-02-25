@@ -1,0 +1,971 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Gastión - Asistente UTN | Gestión del Conocimiento 2026</title>
+   <meta name="description" content="Asistente virtual 24/7 para estudiantes de Gestión del Conocimiento UTN.">
+   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🤖</text></svg>">
+   <style>
+       * {
+           margin: 0;
+           padding: 0;
+           box-sizing: border-box;
+       }
+
+
+       body {
+           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+           background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+           min-height: 100vh;
+           color: #333;
+       }
+
+
+       .container {
+           max-width: 900px;
+           margin: 0 auto;
+           padding: 20px;
+       }
+
+
+       .header {
+           text-align: center;
+           margin-bottom: 30px;
+           color: white;
+       }
+
+
+       .header h1 {
+           font-size: 2.5rem;
+           margin-bottom: 10px;
+           text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+       }
+
+
+       .header p {
+           font-size: 1.1rem;
+           opacity: 0.9;
+       }
+
+
+       .chatbot {
+           background: white;
+           border-radius: 20px;
+           box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+           overflow: hidden;
+           display: flex;
+           flex-direction: column;
+       }
+
+
+       .chat-header {
+           background: linear-gradient(135deg, #2c3e50, #34495e);
+           color: white;
+           padding: 20px;
+           display: flex;
+           align-items: center;
+           gap: 15px;
+       }
+
+
+       .bot-avatar {
+           width: 50px;
+           height: 50px;
+           background: linear-gradient(135deg, #3498db, #2980b9);
+           border-radius: 50%;
+           display: flex;
+           align-items: center;
+           justify-content: center;
+           font-size: 24px;
+           font-weight: bold;
+           box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+       }
+
+
+       .status {
+           margin-left: auto;
+           display: flex;
+           align-items: center;
+           gap: 8px;
+           font-size: 14px;
+       }
+
+
+       .status-dot {
+           width: 10px;
+           height: 10px;
+           background: #2ecc71;
+           border-radius: 50%;
+           animation: pulse 2s infinite;
+       }
+
+
+       @keyframes pulse {
+           0% { opacity: 1; }
+           50% { opacity: 0.5; }
+           100% { opacity: 1; }
+       }
+
+
+       .chat-area {
+           height: 450px;
+           overflow-y: auto;
+           padding: 30px;
+           background: linear-gradient(to bottom, #f8f9fa, #ffffff);
+           scroll-behavior: smooth;
+       }
+
+
+       .chat-area::-webkit-scrollbar {
+           width: 8px;
+       }
+       .chat-area::-webkit-scrollbar-thumb {
+           background-color: #bdc3c7;
+           border-radius: 4px;
+       }
+
+
+       .welcome-screen {
+           text-align: center;
+       }
+
+
+       .welcome-screen h2 {
+           font-size: 1.8rem;
+           color: #2c3e50;
+           margin-bottom: 10px;
+       }
+
+
+       .welcome-screen p {
+           color: #7f8c8d;
+           margin-bottom: 30px;
+       }
+
+
+       .quick-actions {
+           display: grid;
+           grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+           gap: 15px;
+           margin-bottom: 30px;
+       }
+
+
+       .action-card {
+           background: white;
+           border: 2px solid #ecf0f1;
+           border-radius: 15px;
+           padding: 20px;
+           text-align: center;
+           cursor: pointer;
+           transition: all 0.3s ease;
+           text-decoration: none;
+           color: inherit;
+       }
+
+
+       .action-card:hover {
+           transform: translateY(-5px);
+           box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+           border-color: #3498db;
+       }
+
+
+       .action-card .icon {
+           font-size: 2rem;
+           margin-bottom: 10px;
+       }
+
+
+       .action-card h3 {
+           font-size: 1rem;
+           margin-bottom: 5px;
+           color: #2c3e50;
+       }
+
+
+       .action-card p {
+           font-size: 0.85rem;
+           color: #7f8c8d;
+       }
+
+
+       .stats {
+           display: grid;
+           grid-template-columns: repeat(3, 1fr);
+           gap: 15px;
+           margin-top: 20px;
+       }
+
+
+       .stat-card {
+           background: rgba(52, 152, 219, 0.1);
+           padding: 15px;
+           border-radius: 10px;
+           text-align: center;
+       }
+
+
+       .stat-number {
+           font-size: 1.5rem;
+           font-weight: bold;
+           color: #3498db;
+       }
+
+
+       .stat-label {
+           font-size: 0.8rem;
+           color: #7f8c8d;
+       }
+
+
+       .input-area {
+           padding: 20px 25px;
+           background: #f8f9fa;
+           border-top: 1px solid #ecf0f1;
+       }
+
+
+       .quick-buttons {
+           display: flex;
+           flex-wrap: wrap;
+           gap: 8px;
+           margin-bottom: 15px;
+       }
+
+
+       .quick-btn {
+           background: #ecf0f1;
+           border: none;
+           padding: 8px 15px;
+           border-radius: 20px;
+           font-size: 0.85rem;
+           cursor: pointer;
+           transition: all 0.2s ease;
+           color: #2c3e50;
+           font-weight: 500;
+       }
+
+
+       .quick-btn:hover {
+           background: #3498db;
+           color: white;
+       }
+      
+       .quick-btn.highlight {
+           background: #e8f4fd;
+           border: 1px solid #3498db;
+           color: #2980b9;
+       }
+
+
+       .quick-btn.highlight:hover {
+           background: #3498db;
+           color: white;
+       }
+
+
+       .input-group {
+           display: flex;
+           gap: 10px;
+       }
+
+
+       .message-input {
+           flex: 1;
+           padding: 15px;
+           border: 2px solid #ecf0f1;
+           border-radius: 12px;
+           font-size: 1rem;
+           outline: none;
+           transition: border-color 0.2s ease;
+       }
+
+
+       .message-input:focus {
+           border-color: #3498db;
+           box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+       }
+
+
+       .send-btn {
+           background: #3498db;
+           color: white;
+           border: none;
+           padding: 15px 25px;
+           border-radius: 12px;
+           font-size: 1rem;
+           font-weight: bold;
+           cursor: pointer;
+           transition: background 0.2s ease;
+       }
+
+
+       .send-btn:hover {
+           background: #2980b9;
+       }
+
+
+       .message {
+           margin-bottom: 20px;
+           animation: fadeIn 0.3s ease;
+           line-height: 1.5;
+       }
+
+
+       @keyframes fadeIn {
+           from { opacity: 0; transform: translateY(10px); }
+           to { opacity: 1; transform: translateY(0); }
+       }
+
+
+       .user-message {
+           display: flex;
+           justify-content: flex-end;
+       }
+
+
+       .user-message .bubble {
+           background: #3498db;
+           color: white;
+           padding: 12px 18px;
+           border-radius: 18px 18px 5px 18px;
+           max-width: 80%;
+           box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+       }
+
+
+       .bot-message {
+           display: flex;
+           align-items: flex-start;
+           gap: 12px;
+       }
+
+
+       .bot-message .avatar {
+           width: 35px;
+           height: 35px;
+           background: linear-gradient(135deg, #3498db, #2980b9);
+           border-radius: 50%;
+           display: flex;
+           align-items: center;
+           justify-content: center;
+           color: white;
+           font-weight: bold;
+           font-size: 14px;
+           flex-shrink: 0;
+           box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+       }
+
+
+       .bot-message .bubble {
+           background: white;
+           border: 1px solid #ecf0f1;
+           padding: 15px;
+           border-radius: 5px 18px 18px 18px;
+           max-width: 85%;
+           box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+           color: #2c3e50;
+       }
+
+
+       .response-card {
+           border-left: 4px solid #3498db;
+           background: #fdfefe;
+           padding: 15px;
+           border-radius: 0 8px 8px 0;
+           margin: 5px 0;
+           box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+       }
+
+
+       .response-card h4 {
+           color: #2c3e50;
+           margin-bottom: 12px;
+           font-size: 1.1rem;
+           display: flex;
+           align-items: center;
+           gap: 8px;
+       }
+
+
+       .response-card ul {
+           list-style: none;
+           padding-left: 0;
+       }
+
+
+       .response-card li {
+           margin-bottom: 8px;
+           color: #34495e;
+           font-size: 0.95rem;
+       }
+
+
+       /* Custom styling for the details/summary component */
+       details {
+           transition: all 0.3s ease;
+       }
+       details > summary {
+           list-style: none; /* Hide default arrow in modern browsers */
+           user-select: none;
+       }
+       details > summary::-webkit-details-marker {
+           display: none; /* Hide default arrow in Safari */
+       }
+       details[open] summary {
+           border-bottom: 1px solid #eee;
+           padding-bottom: 10px;
+           margin-bottom: 10px;
+       }
+
+
+       .footer {
+           text-align: center;
+           margin-top: 20px;
+           color: white;
+           opacity: 0.8;
+           font-size: 0.9rem;
+       }
+
+
+       .hidden {
+           display: none;
+       }
+
+
+       .typing-indicator {
+           display: flex;
+           align-items: center;
+           gap: 5px;
+           padding: 10px 5px;
+       }
+
+
+       .typing-dot {
+           width: 8px;
+           height: 8px;
+           background: #bdc3c7;
+           border-radius: 50%;
+           animation: typing 1.4s infinite;
+       }
+
+
+       .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+       .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+
+       @keyframes typing {
+           0%, 60%, 100% { transform: translateY(0); }
+           30% { transform: translateY(-8px); }
+       }
+
+
+       @media (max-width: 768px) {
+           .container {
+               padding: 10px;
+           }
+          
+           .header h1 {
+               font-size: 2rem;
+           }
+          
+           .quick-actions {
+               grid-template-columns: 1fr;
+           }
+          
+           .input-group {
+               flex-direction: column;
+           }
+
+
+           .bot-message .bubble {
+               max-width: 90%;
+           }
+          
+           .stats {
+               grid-template-columns: repeat(3, 1fr);
+               gap: 10px;
+           }
+       }
+   </style>
+</head>
+<body>
+   <div class="container">
+       <div class="header">
+           <h1>🤖 Gastión</h1>
+           <p>Asistente Virtual UTN - Gestión del Conocimiento 2026</p>
+       </div>
+
+
+       <div class="chatbot">
+           <div class="chat-header">
+               <div class="bot-avatar">G</div>
+               <div>
+                   <h2 style="margin: 0; font-size: 1.3rem;">¡Hola! Soy Gastión</h2>
+                   <p style="margin: 5px 0 0 0; opacity: 0.8; font-size: 0.9rem;">Tu asistente académico 24/7</p>
+               </div>
+               <div class="status">
+                   <div class="status-dot"></div>
+                   <span>En línea</span>
+               </div>
+           </div>
+
+
+           <div class="chat-area" id="chatArea">
+               <div class="welcome-screen" id="welcomeScreen">
+                   <h2>¡Bienvenido al ciclo 2026!</h2>
+                   <p>Puedo ayudarte con el cronograma, fechas importantes y modalidades de este cuatrimestre.</p>
+
+
+                   <div class="quick-actions">
+                       <div class="action-card" onclick="sendQuery('¿Cuál es la hoja de ruta?')">
+                           <div class="icon">🗺️</div>
+                           <h3>Hoja de Ruta</h3>
+                           <p>Pasos y actividades por unidad</p>
+                       </div>
+
+
+                       <div class="action-card" onclick="sendQuery('¿Cuándo son los parciales?')">
+                           <div class="icon">📅</div>
+                           <h3>Fechas de Parciales</h3>
+                           <p>Evaluaciones y recuperatorios</p>
+                       </div>
+                      
+                       <div class="action-card" onclick="sendQuery('¿Cuáles son los horarios de las clases?')">
+                           <div class="icon">⏰</div>
+                           <h3>Cronograma AVS</h3>
+                           <p>Fechas de unidades y clases</p>
+                       </div>
+                      
+                       <div class="action-card" onclick="sendQuery('¿Cómo se aprueba la materia?')">
+                           <div class="icon">✅</div>
+                           <h3>Aprobación</h3>
+                           <p>Condiciones de cursada</p>
+                       </div>
+                   </div>
+
+
+                   <div class="stats">
+                       <div class="stat-card">
+                           <div class="stat-number">2026</div>
+                           <div class="stat-label">Ciclo Actual</div>
+                       </div>
+                       <div class="stat-card">
+                           <div class="stat-number">4</div>
+                           <div class="stat-label">Unidades</div>
+                       </div>
+                       <div class="stat-card">
+                           <div class="stat-number">UTN</div>
+                           <div class="stat-label">Oficial</div>
+                       </div>
+                   </div>
+               </div>
+           </div>
+
+
+           <div class="input-area">
+               <div class="quick-buttons">
+                   <button class="quick-btn highlight" onclick="sendQuery('🗺️ Hoja de Ruta')">🗺️ Hoja de Ruta</button>
+                   <button class="quick-btn" onclick="sendQuery('📅 Fechas Parciales')">📅 Parciales</button>
+                   <button class="quick-btn" onclick="sendQuery('⏰ Cronograma AVS')">⏰ Cronograma AVS</button>
+                   <button class="quick-btn" onclick="sendQuery('✅ Aprobación')">✅ Aprobación</button>
+               </div>
+
+
+               <div class="input-group">
+                   <input
+                       type="text"
+                       id="messageInput"
+                       class="message-input"
+                       placeholder="Escribe tu consulta aquí..."
+                       onkeypress="handleKeyPress(event)"
+                   />
+                   <button onclick="sendMessage()" class="send-btn">Enviar 🚀</button>
+               </div>
+           </div>
+       </div>
+
+
+       <div class="footer">
+           <p>🎓 <strong>Universidad Tecnológica Nacional</strong></p>
+           <p>Gestión del Conocimiento • Información administrativa actualizada • Primer Cuatrimestre 2026</p>
+       </div>
+   </div>
+
+
+   <script>
+       const responses = {
+           fechas: `<div class="response-card" style="border-left-color: #e67e22;">
+               <h4>📅 PARCIALES - 1er Cuatrimestre 2026</h4>
+               <p style="margin-bottom: 10px; font-size: 0.95rem;">Estas son las fechas de evaluación estipuladas:</p>
+               <ul>
+                   <li>📝 <strong>1er Parcial:</strong> 01/05 al 08/05/2026</li>
+                   <li>🔄 <strong>Recup. 1er Parcial:</strong> 15/05 al 22/05/2026</li>
+                   <hr style="border: 0; border-top: 1px solid #eee; margin: 10px 0;">
+                   <li>📝 <strong>2do Parcial:</strong> 12/06 al 19/06/2026</li>
+                   <li>🔄 <strong>Recup. 2do Parcial:</strong> 20/06 al 25/06/2026</li>
+               </ul>
+               <div style="margin-top: 15px; padding: 10px; background: #fdf2e9; border-radius: 6px; font-size: 0.85rem; color: #d35400;">
+                   <em>⚠️ Las fechas pueden ser reajustadas ante situaciones excepcionales; cualquier modificación será comunicada en el campus.</em>
+               </div>
+           </div>`,
+
+
+           horarios: `<div class="response-card" style="border-left-color: #9b59b6;">
+               <h4>⏰ CRONOGRAMA DE UNIDADES Y AVS (2026)</h4>
+               <p style="margin-bottom: 15px; font-size: 0.95rem;">Las <strong>Clases Virtuales Sincrónicas (AVS)</strong> se realizan los <strong>viernes a las 18:00 hs</strong>.</p>
+              
+               <ul style="border-left: 2px solid #ecf0f1; padding-left: 15px; margin-left: 5px;">
+                   <li style="margin-bottom: 15px;">
+                       <strong style="color: #8e44ad;">Unidad 1:</strong> 09/03 al 05/04<br>
+                       <span style="font-size: 0.85rem; color: #7f8c8d;">AVS: 13/03, 20/03, 27/03, 03/04</span>
+                   </li>
+                   <li style="margin-bottom: 15px;">
+                       <strong style="color: #8e44ad;">Unidad 2:</strong> 06/04 al 03/05<br>
+                       <span style="font-size: 0.85rem; color: #7f8c8d;">AVS: 10/04, 17/04, 24/04, 01/05</span>
+                   </li>
+                   <li style="margin-bottom: 15px;">
+                       <strong style="color: #8e44ad;">Unidad 3:</strong> 04/05 al 31/05<br>
+                       <span style="font-size: 0.85rem; color: #7f8c8d;">AVS: 08/05, 15/05, 22/05, 29/05</span>
+                   </li>
+                   <li style="margin-bottom: 10px;">
+                       <strong style="color: #8e44ad;">Unidad 4:</strong> 01/06 al 21/06<br>
+                       <span style="font-size: 0.85rem; color: #7f8c8d;">AVS: 05/06, 12/06, 19/06</span>
+                   </li>
+               </ul>
+               <div style="margin-top: 15px; font-size: 0.85rem; color: #7f8c8d;">
+                   <em>Si tenés dudas sobre el cronograma, consultá en el foro de la plataforma.</em>
+               </div>
+           </div>`,
+
+
+           hoja_de_ruta: `<div style="margin: 5px 0; display: flex; flex-direction: column; gap: 10px;">
+               <p style="font-size: 0.95rem; color: #34495e; margin-bottom: 5px;">Aquí tienes la ruta general del curso y el detalle de cada unidad:</p>
+
+
+               <!-- RUTA GENERAL -->
+               <details style="background: #ffffff; border: 1px solid #e0e6ed; border-left: 5px solid #34495e; padding: 12px 16px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); margin-bottom: 5px;">
+                 <summary style="font-weight: 600; color: #2c3e50; font-size: 1.05em; cursor: pointer; outline: none; display: flex; align-items: center; justify-content: space-between;">
+                   <span>🌟 Hoja de Ruta General</span>
+                 </summary>
+                 <div style="margin-top: 15px; font-size: 0.95rem; color: #34495e; animation: fadeIn 0.4s ease;">
+                   <p style="margin-bottom: 12px;">Pasos transversales para todo el cuatrimestre:</p>
+                   <ul style="padding-left: 0; list-style: none;">
+                     <li style="margin-bottom: 10px; display: flex; gap: 8px;"><span>📖</span> <div><strong>Información y Reglamento:</strong> Lee "Información de la materia", los "Criterios de evaluación" y el "Reglamento Ético y de Convivencia Estudiantil".</div></li>
+                     <li style="margin-bottom: 10px; display: flex; gap: 8px;"><span>📅</span> <div><strong>Cronograma:</strong> Descárgalo para administrar tu tiempo y cumplir los plazos con éxito.</div></li>
+                     <li style="margin-bottom: 10px; display: flex; gap: 8px;"><span>👋</span> <div><strong>Foros:</strong> Preséntate en el foro de bienvenida para construir red y revisa periódicamente las "Novedades y anuncios".</div></li>
+                     <li style="margin-bottom: 10px; display: flex; gap: 8px;"><span>📚</span> <div><strong>Materiales (2 formatos):</strong> Puedes consumirlos de manera interactiva (videos/podcast) o en PDF lineal según tu preferencia.</div></li>
+                     <li style="margin-bottom: 10px; display: flex; gap: 8px;"><span>🎥</span> <div><strong>Clases en vivo (AVS):</strong> No son obligatorias, pero sí muy recomendadas para interactuar y resolver dudas. Quedan grabadas.</div></li>
+                     <li style="margin-bottom: 10px; display: flex; gap: 8px;"><span>🧪</span> <div><strong>Práctica y Debate:</strong> Realiza las actividades de E-Lab y participa activamente en los foros para el aprendizaje colaborativo.</div></li>
+                     <li style="margin-bottom: 10px; display: flex; gap: 8px;"><span>✅</span> <div><strong>Regularización:</strong> Es indispensable aprobar al menos <strong>9 de las 12</strong> actividades obligatorias del cuatrimestre.</div></li>
+                   </ul>
+                 </div>
+               </details>
+              
+               <!-- UNIDAD 1 -->
+               <details style="background: #ffffff; border: 1px solid #e0e6ed; border-left: 5px solid #2E86C1; padding: 12px 16px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.02);">
+                 <summary style="font-weight: 600; color: #2e86c1; font-size: 1.05em; cursor: pointer; outline: none; display: flex; align-items: center; justify-content: space-between;">
+                   <span>🗺️ Unidad 1</span>
+                 </summary>
+                 <div style="margin-top: 15px; font-size: 0.95rem; color: #34495e; animation: fadeIn 0.4s ease;">
+                   <p style="margin-bottom: 12px;">¡Te damos la bienvenida a la Unidad 1!</p>
+                   <ul style="padding-left: 0; list-style: none;">
+                     <li style="margin-bottom: 10px; display: flex; gap: 8px;"><span>📖</span> <div><strong>Lee los contenidos teóricos.</strong></div></li>
+                     <li style="margin-bottom: 10px; display: flex; gap: 8px;"><span>🎬</span> <div><strong>Visualiza videos y podcast 🎧</strong></div></li>
+                     <li style="margin-bottom: 10px; display: flex; gap: 8px;"><span>🧪</span> <div><strong>Participa en el e-lab.</strong></div></li>
+                     <li style="margin-bottom: 10px; display: flex; gap: 8px;">
+                       <span>📝</span>
+                       <div>
+                           <strong>Actividades de regularización:</strong>
+                           <ul style="margin-top: 8px; padding-left: 15px; font-size: 0.9rem; list-style-type: disc;">
+                             <li>Cuestionario 1: desde el <strong>09/03/2026</strong></li>
+                             <li>Cuestionario 2: desde el <strong>16/03/2026</strong></li>
+                             <li>Cuestionario 3: desde el <strong>23/03/2026</strong></li>
+                           </ul>
+                           <div style="display: inline-block; margin-top: 5px; color: #c0392b; font-size: 0.85rem; font-weight: bold;">⚠️ Cierran el 05 de abril de 2026.</div>
+                       </div>
+                     </li>
+                     <li style="margin-bottom: 10px; display: flex; gap: 8px;"><span>💬</span> <div><strong>Foro de debate:</strong> intercambia conocimientos.</div></li>
+                   </ul>
+                 </div>
+               </details>
+
+
+               <!-- UNIDAD 2 -->
+               <details style="background: #ffffff; border: 1px solid #e0e6ed; border-left: 5px solid #27ae60; padding: 12px 16px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.02);">
+                 <summary style="font-weight: 600; color: #27ae60; font-size: 1.05em; cursor: pointer; outline: none; display: flex; align-items: center; justify-content: space-between;">
+                   <span>🗺️ Unidad 2</span>
+                 </summary>
+                 <div style="margin-top: 15px; font-size: 0.95rem; color: #34495e; animation: fadeIn 0.4s ease;">
+                   <p style="margin-bottom: 12px;">¡Aprovechemos al máximo esta etapa!</p>
+                   <ul style="padding-left: 0; list-style: none;">
+                     <li style="margin-bottom: 10px; display: flex; gap: 8px;"><span>📖</span> <div><strong>Lee los contenidos teóricos.</strong></div></li>
+                     <li style="margin-bottom: 10px; display: flex; gap: 8px;"><span>🎬</span> <div><strong>Disfruta videos y podcast 🎧</strong></div></li>
+                     <li style="margin-bottom: 10px; display: flex; gap: 8px;"><span>🧪</span> <div><strong>Experimenta en el e-lab.</strong></div></li>
+                     <li style="margin-bottom: 10px; display: flex; gap: 8px;">
+                       <span>📝</span>
+                       <div>
+                           <strong>Actividades de regularización:</strong>
+                           <ul style="margin-top: 8px; padding-left: 15px; font-size: 0.9rem; list-style-type: disc;">
+                             <li>Cuarto cuestionario: desde el <strong>06/04/2026</strong></li>
+                             <li>Quinto cuestionario: desde el <strong>13/04/2026</strong></li>
+                             <li>Sexto cuestionario: desde el <strong>20/04/2026</strong></li>
+                           </ul>
+                           <div style="display: inline-block; margin-top: 5px; color: #c0392b; font-size: 0.85rem; font-weight: bold;">⚠️ Cierran el 03 de mayo de 2026.</div>
+                       </div>
+                     </li>
+                     <li style="margin-bottom: 10px; display: flex; gap: 8px;"><span>💬</span> <div><strong>Participa en el foro de debate.</strong></div></li>
+                     <li style="margin-bottom: 10px; display: flex; gap: 8px;"><span>🎯</span> <div><strong>1er Parcial:</strong> Habilitado del <strong>01/05 al 08/05</strong> en la sección Parciales. <em>Se realiza grupal, pero la entrega es individual.</em></div></li>
+                   </ul>
+                 </div>
+               </details>
+
+
+               <!-- UNIDAD 3 -->
+               <details style="background: #ffffff; border: 1px solid #e0e6ed; border-left: 5px solid #f39c12; padding: 12px 16px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.02);">
+                 <summary style="font-weight: 600; color: #e67e22; font-size: 1.05em; cursor: pointer; outline: none; display: flex; align-items: center; justify-content: space-between;">
+                   <span>🗺️ Unidad 3</span>
+                 </summary>
+                 <div style="margin-top: 15px; font-size: 0.95rem; color: #34495e; animation: fadeIn 0.4s ease;">
+                   <p style="margin-bottom: 12px;">¡Paso a paso y con mucha emoción!</p>
+                   <ul style="padding-left: 0; list-style: none;">
+                     <li style="margin-bottom: 10px; display: flex; gap: 8px;"><span>📖</span> <div><strong>Sumérgete en los contenidos teóricos.</strong></div></li>
+                     <li style="margin-bottom: 10px; display: flex; gap: 8px;"><span>🎬</span> <div><strong>Disfruta videos y podcast 🎧</strong></div></li>
+                     <li style="margin-bottom: 10px; display: flex; gap: 8px;"><span>🧪</span> <div><strong>Experimenta en el e-lab.</strong></div></li>
+                     <li style="margin-bottom: 10px; display: flex; gap: 8px;">
+                       <span>📝</span>
+                       <div>
+                           <strong>Actividades de regularización:</strong>
+                           <ul style="margin-top: 8px; padding-left: 15px; font-size: 0.9rem; list-style-type: disc;">
+                             <li>Séptimo cuestionario: desde el <strong>04/05/2026</strong></li>
+                             <li>Octavo cuestionario: desde el <strong>11/05/2026</strong></li>
+                             <li>Noveno cuestionario: desde el <strong>18/05/2026</strong></li>
+                           </ul>
+                           <div style="display: inline-block; margin-top: 5px; color: #c0392b; font-size: 0.85rem; font-weight: bold;">⚠️ Cierran el 31 de mayo de 2026.</div>
+                       </div>
+                     </li>
+                     <li style="margin-bottom: 10px; display: flex; gap: 8px;"><span>💬</span> <div><strong>Participa en el foro de debate.</strong></div></li>
+                   </ul>
+                 </div>
+               </details>
+
+
+               <!-- UNIDAD 4 -->
+               <details style="background: #ffffff; border: 1px solid #e0e6ed; border-left: 5px solid #8e44ad; padding: 12px 16px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.02);">
+                 <summary style="font-weight: 600; color: #8e44ad; font-size: 1.05em; cursor: pointer; outline: none; display: flex; align-items: center; justify-content: space-between;">
+                   <span>🗺️ Unidad 4</span>
+                 </summary>
+                 <div style="margin-top: 15px; font-size: 0.95rem; color: #34495e; animation: fadeIn 0.4s ease;">
+                   <p style="margin-bottom: 12px;">¡Último tramo del camino!</p>
+                   <ul style="padding-left: 0; list-style: none;">
+                     <li style="margin-bottom: 10px; display: flex; gap: 8px;"><span>📖</span> <div><strong>Sumérgete en los contenidos teóricos.</strong></div></li>
+                     <li style="margin-bottom: 10px; display: flex; gap: 8px;"><span>🎬</span> <div><strong>Disfruta videos y podcast 🎧</strong></div></li>
+                     <li style="margin-bottom: 10px; display: flex; gap: 8px;"><span>🧪</span> <div><strong>Experimenta en el e-lab.</strong></div></li>
+                     <li style="margin-bottom: 10px; display: flex; gap: 8px;">
+                       <span>📝</span>
+                       <div>
+                           <strong>Actividades de regularización:</strong>
+                           <ul style="margin-top: 8px; padding-left: 15px; font-size: 0.9rem; list-style-type: disc;">
+                             <li>Décimo cuestionario: desde el <strong>01/06/2026</strong></li>
+                             <li>Undécimo cuestionario: desde el <strong>08/06/2026</strong></li>
+                             <li>Duodécimo cuestionario: desde el <strong>12/06/2026</strong></li>
+                           </ul>
+                           <div style="display: inline-block; margin-top: 5px; color: #c0392b; font-size: 0.85rem; font-weight: bold;">⚠️ Cierran el 21 de junio de 2026.</div>
+                       </div>
+                     </li>
+                     <li style="margin-bottom: 10px; display: flex; gap: 8px;"><span>💬</span> <div><strong>Participa en el foro de debate.</strong></div></li>
+                   </ul>
+                 </div>
+               </details>
+           </div>`,
+
+
+           aprobacion: `<div class="response-card" style="border-left-color: #27ae60;">
+               <h4>✅ CONDICIONES DE APROBACIÓN (Ord. 1622)</h4>
+              
+               <div style="margin-bottom: 15px; background: #e8f8f5; padding: 12px; border-radius: 6px; border: 1px solid #a3e4d7;">
+                   <strong>🎓 FÓRMULA DE NOTA FINAL:</strong>
+                   <div style="font-family: monospace; font-size: 1.05rem; margin-top: 8px; text-align: center; color: #117a65; font-weight: bold;">
+                       [ Promedio(Parciales) + Nota de Concepto ] / 2
+                   </div>
+               </div>
+
+
+               <div style="margin-bottom: 15px;">
+                   <strong>📋 REQUISITOS DE REGULARIDAD:</strong>
+                   <ul style="margin-top: 8px; font-size: 0.95rem;">
+                       <li>• Cumplir con al menos el <strong>75%</strong> de participación y aprobación de las actividades obligatorias (aprobando mínimo 9 de 12).</li>
+                       <li>• Aprobar los <strong>2 parciales</strong> (o sus respectivos recuperatorios).</li>
+                   </ul>
+               </div>
+
+
+               <div style="margin-bottom: 15px;">
+                   <strong>⭐ ¿QUÉ INCLUYE LA NOTA DE CONCEPTO?</strong>
+                   <ul style="margin-top: 8px; font-size: 0.95rem;">
+                       <li>• Ingreso regular al aula e interacción con pares.</li>
+                       <li>• Presentación en tiempo y forma de trabajos.</li>
+                       <li>• Participación crítica y reflexiva en foros y grupos.</li>
+                       <li>• Resolución de consignas optativas.</li>
+                   </ul>
+               </div>
+
+
+               <div style="background: #fff3cd; padding: 10px; border-radius: 5px; border-left: 4px solid #ffc107; font-size: 0.9rem;">
+                   <strong>⚠️ IMPORTANTE:</strong> Los alumnos que no cumplan el 75% de las actividades obligatorias, aunque aprueben los parciales, deberán recursar la materia (y viceversa).
+               </div>
+           </div>`,
+
+
+           docentes: `<div class="response-card" style="border-left-color: #34495e;">
+               <h4>👥 EQUIPO DOCENTE</h4>
+               <ul>
+                   <li><strong>Profesora Titular:</strong> Marina Mattarolo</li>
+                   <li><strong>Docentes Adjuntos:</strong></li>
+                   <li style="margin-left: 20px;">• Natanael Soberón</li>
+                   <li style="margin-left: 20px;">• Pablo Escaf</li>
+                   <li style="margin-left: 20px;">• Pablo Palmieri</li>
+               </ul>
+           </div>`,
+
+
+           hola: `<div class="response-card" style="border-left-color: #95a5a6;">
+               <h4>👋 ¡Hola!</h4>
+               <p>Soy Gastión, tu asistente virtual para el ciclo 2026 de Gestión del Conocimiento.</p>
+               <p style="margin-top: 10px; font-size: 0.9rem; color: #7f8c8d;">Prueba preguntándome sobre la "Hoja de ruta", las "Fechas de parciales" o el "Cronograma".</p>
+           </div>`
+       };
+
+
+       function findResponse(message) {
+           const cleanMessage = message.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""); // Remove accents
+          
+           if (cleanMessage.includes('hola') || cleanMessage.includes('buenos') || cleanMessage.includes('buenas')) {
+               return responses.hola;
+           }
+           if (cleanMessage.includes('ruta') || cleanMessage.includes('unidad') || cleanMessage.includes('primeros pasos') || cleanMessage.includes('cuestionarios')) {
+               return responses.hoja_de_ruta;
+           }
+           if (cleanMessage.includes('aprobacion') || cleanMessage.includes('aprobar') || cleanMessage.includes('aprueba') || cleanMessage.includes('condiciones') || cleanMessage.includes('formula') || cleanMessage.includes('nota')) {
+               return responses.aprobacion;
+           }
+           if (cleanMessage.includes('parcial') || cleanMessage.includes('fecha') || cleanMessage.includes('cuando') || cleanMessage.includes('recuperatorio')) {
+               return responses.fechas;
+           }
+           if (cleanMessage.includes('horario') || cleanMessage.includes('cronograma') || cleanMessage.includes('avs') || cleanMessage.includes('viernes') || cleanMessage.includes('unidades')) {
+               return responses.horarios;
+           }
+           if (cleanMessage.includes('docente') || cleanMessage.includes('profesor') || cleanMessage.includes('profe')) {
+               return responses.docentes;
+           }
+          
+           return `<div class="response-card" style="border-left-color: #95a5a6;">
+               <h4>🤔 No estoy seguro de entender</h4>
+               <p>Te sugiero consultarme sobre:</p>
+               <ul style="margin-top: 10px;">
+                   <li>🗺️ <strong>Hoja de ruta</strong> (General y por unidades)</li>
+                   <li>📅 <strong>Fechas</strong> de parciales</li>
+                   <li>⏰ <strong>Cronograma</strong> de clases virtuales (AVS)</li>
+                   <li>✅ <strong>Condiciones</strong> de aprobación</li>
+               </ul>
+           </div>`;
+       }
+
+
+       function addMessage(text, isUser) {
+           const chatArea = document.getElementById('chatArea');
+           const welcomeScreen = document.getElementById('welcomeScreen');
+          
+           if (welcomeScreen && !welcomeScreen.classList.contains('hidden')) {
+               welcomeScreen.classList.add('hidden');
+           }
+
+
+           const messageDiv = document.createElement('div');
+           messageDiv.className = 'message';
+          
+           if (isUser) {
+               messageDiv.className += ' user-message';
+               messageDiv.innerHTML = `
+                   <div class="bubble">${text}</div>
+               `;
+           } else {
+               messageDiv.className += ' bot-message';
+               messageDiv.innerHTML = `
+                   <div class="avatar">G</div>
+                   <div class="bubble">${text}</div>
+               `;
+           }
+          
+           chatArea.appendChild(messageDiv);
+           chatArea.scrollTop = chatArea.scrollHeight;
+       }
+
+
+       function showTyping() {
+           const chatArea = document.getElementById('chatArea');
+           const typingDiv = document.createElement('div');
+           typingDiv.id = 'typing-indicator';
+           typingDiv.className = 'message bot-message';
+           typingDiv.innerHTML = `
+               <div class="avatar">G</div>
+               <div class="bubble" style="padding: 10px 15px;">
+                   <div class="typing-indicator">
+                       <div class="typing-dot"></div>
+                       <div class="typing-dot"></div>
+                       <div class="typing-dot"></div>
+                   </div>
+               </div>
+           `;
+           chatArea.appendChild(typingDiv);
+           chatArea.scrollTop = chatArea.scrollHeight;
+       }
+
+
+       function removeTyping() {
+           const typing = document.getElementById('typing-indicator');
+           if (typing) typing.remove();
+       }
+
+
+       function sendMessage() {
+           const input = document.getElementById('messageInput');
+           const message = input.value.trim();
+          
+           if (!message) return;
+          
+           addMessage(message, true);
+           input.value = '';
+          
+           showTyping();
+          
+           setTimeout(() => {
+               removeTyping();
+               const response = findResponse(message);
+               addMessage(response, false);
+           }, 800); // Slightly faster response time for better UX
+       }
+
+
+       function sendQuery(query) {
+           document.getElementById('messageInput').value = query;
+           sendMessage();
+       }
+
+
+       function handleKeyPress(event) {
+           if (event.key === 'Enter') {
+               sendMessage();
+           }
+       }
+
+
+       // Focus input on load
+       window.onload = function() {
+           document.getElementById('messageInput').focus();
+       };
+   </script>
+</body>
+</html>
